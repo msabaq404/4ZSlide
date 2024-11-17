@@ -4,11 +4,7 @@ let m = 2,
 function createGrid(rows = 2, cols = 5) {
   (m = rows), (n = cols);
   let grid = new Array(m).fill().map(() => new Array(n).fill(0));
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      grid[i - 1][j - 1] = n * (i - 1) + j;
-    }
-  }
+  grid = grid.map((row, i) => row.map((_, j) => n * i + j + 1));
   grid[m - 1][n - 1] = 0;
   return grid;
 }
