@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4ZSlide Puzzle</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+
+  <body>
+    <div class="gridElement-container">
+      <div class="input-section">
+        <label for="rows">Rows:</label>
+        <input type="number" id="rows" min="1" value="2" />
+        <label for="cols">Columns:</label>
+        <input type="number" id="cols" min="1" value="5" />
+        <button onclick="createGridDOM()">Create Grid</button>
+      </div>
+      <div id="gridOutput" class="gridElement"></div>
+    </div>
+    <script src="./logic.js"></script>
+    <script>
+      let emptyTilePosition, puzzleGrid;
+
+      function createGridDOM() {
+        const rows = parseInt(document.getElementById("rows").value);
+        const cols = parseInt(document.getElementById("cols").value);
+        const gridElement = document.getElementById("gridOutput");
+
+        puzzleGrid = createGrid(rows, cols);
+        const shuffleDegree = Math.floor(Math.random() * 9000) + 1000;
+        emptyTilePosition = shuffleGrid(puzzleGrid, shuffleDegree);
+
+        gridElement.style.gridTemplateColumns = `repeat(${cols}, 50px)`;
+        gridElement.innerHTML = "";
+
+        for (let i = 0; i < rows * cols; i++) {
+          const cell = document.createElement("div");
+          cell.addEventListener("click", handleCellClick);
+
+          let puzzleGridFlattened = puzzleGrid.flat();
+          console.log(puzzleGridFlattened);
+          cell.className = "gridElement-cell";
+          cell.textContent = puzzleGridFlattened[i] || 1;
+          if (!puzzleGridFlattened[i] && puzzleGridFlattened.length !== 1) {
+            cell.style.backgroundColor = "transparent";
+            cell.style.border = "none";
+            cell.textContent = "";
+          }
+          gridElement.appendChild(cell);
+        }
+      }
+      // Create initial gridElement
+      createGridDOM();
+      function handleCellClick(e) {
+        e.preventDefault();
+        const id = e.target.textContent;
+        const location = findValueIndices(puzzleGrid, id);
+
+        // Check if clicked cell is adjacent (non-diagonal) to empty cell
+        if (
+          (Math.abs(location[0] - emptyTilePosition[0]) === 1 &&
+            location[1] === emptyTilePosition[1]) ||
+          (Math.abs(location[1] - emptyTilePosition[1]) === 1 &&
+            location[0] === emptyTilePosition[0])
+        ) {
+          let cells = document.querySelectorAll(".gridElement-cell");
+          emptyEl = findElementByContent(
+            cells,
+            puzzleGrid[emptyTilePosition[0]][emptyTilePosition[1]]
+          );
+          swapCells(e.target, emptyEl);
+          slide(puzzleGrid, location, emptyTilePosition);
+          emptyTilePosition = location;
+        }
+      }
+      function swapCells(cell1, cell2) {
+        const rect1 = cell1.getBoundingClientRect();
+        const rect2 = cell2.getBoundingClientRect();
+
+        const deltaX = rect2.left - rect1.left;
+        const deltaY = rect2.top - rect1.top;
+
+        // Set initial positions
+        cell1.style.transition = "none";
+        cell2.style.transition = "none";
+        cell1.style.transform = "none";
+        cell2.style.transform = "none";
+
+        // Trigger reflow
+        cell1.offsetHeight;
+        cell2.offsetHeight;
+
+        // Add transition and move
+        cell1.style.transition = "transform 0.3s ease-in-out";
+        cell2.style.transition = "transform 0.3s ease-in-out";
+        cell1.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+        cell2.style.transform = `translate(${-deltaX}px, ${-deltaY}px)`;
+
+        // After animation, swap DOM positions
+        setTimeout(() => {
+          cell1.style.transition = "none";
+          cell2.style.transition = "none";
+          cell1.style.transform = "none";
+          cell2.style.transform = "none";
+
+          const temp = cell1.nextSibling;
+          cell2.parentNode.insertBefore(cell1, cell2.nextSibling);
+          cell1.parentNode.insertBefore(cell2, temp);
+        }, 300);
+      }
+      function findValueIndices(array2D, searchValue) {
+        for (let i = 0; i < array2D.length; i++) {
+          for (let j = 0; j < array2D[i].length; j++) {
+            if (array2D[i][j] == searchValue) {
+              return [i, j];
+            }
+          }
+        }
+        return null;
+      }
+      function findChildByContent(parentElement, searchContent) {
+        const children = parentElement.children;
+        for (let child of children) {
+          if (child.textContent == searchContent) {
+            return child;
+          }
+        }
+        return null;
+      }
+      function findElementByContent(nodeList, searchValue) {
+        for (let node of nodeList) {
+          if (node.textContent == searchValue) {
+            return node;
+          }
+        }
+        return null;
+      }
+    </script>
+  </body>
+</html>
