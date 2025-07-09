@@ -1,28 +1,99 @@
+#main-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 100vw;
+    overflow: hidden;
+    transform: translate(-50%, -50%);
+}
+
 .gridElement-container {
+    width: 100vw;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 20px;
-  }
+    /* margin: 20px; */
+}
 
-  .input-section {
-    margin-bottom: 20px;
-  }
-
-  .gridElement {
+.gridElement {
+    position: relative;
     display: grid;
-    gap: 2px;
-    background-color: #f0f0f0;
-    padding: 10px;
-  }
+    gap: 4px;
+    background-color: rgb(222, 222, 255);
+    padding: 20px;
+    border-radius: 10px;;
+}
 
-  .gridElement-cell {
-    width: 50px;
-    height: 50px;
-    background-color: #fff;
-    border: 1px solid #ccc;
+
+
+.gridElement-cell {
+    position: relative;
+    aspect-ratio: 1/1;
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-  }
+    overflow: clip;
+    background-size: 250px 100px; /* Will be dynamically set based on grid size */
+    background-repeat: no-repeat;
+}
+
+.gridElement > img {
+    position: absolute;
+    opacity: .3;  
+}
+.apply{
+    position: absolute;
+    bottom: 1rem;
+    background: #b22525;
+    padding: 0.5rem 1rem;
+    outline:none;
+    color: white;
+    left: 50%;
+    transform: translateX(-50%);
+    border: none;
+    scale: 1.2;
+    cursor: pointer;
+    display: none;
+}
+
+.prev, .next{
+    position: absolute;
+    top: 50%;
+    background: #b22525;
+    color: white;
+    transform: translateY(-50%);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+.prev {
+    left: 1rem;
+}
+
+.next{
+    right: 1rem;
+}
+
+.prev svg, .next svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+}
+
+@media screen and (max-width: 768px) {
+    .prev, .next{
+        display: none;;
+    }
+    
+}

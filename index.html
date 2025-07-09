@@ -1,142 +1,597 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4ZSlide Puzzle</title>
-    <link rel="stylesheet" href="./style.css" />
-  </head>
 
-  <body>
-    <div class="gridElement-container">
-      <div class="input-section">
-        <label for="rows">Rows:</label>
-        <input type="number" id="rows" min="1" value="2" />
-        <label for="cols">Columns:</label>
-        <input type="number" id="cols" min="1" value="5" />
-        <button onclick="createGridDOM()">Create Grid</button>
-      </div>
-      <div id="gridOutput" class="gridElement"></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4ZSlide Puzzle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Irish+Grover&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: lavender;
+      font-family: "Inter", sans-serif;
+    }
+
+    header {
+      height: 5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 55rem;
+      margin: 0 auto;
+      padding: 0 1rem;
+      font-size: 1.6rem;
+    }
+
+    header h1 span:nth-child(1) {
+      font-family: "Irish Grover", sans-serif;
+      color: #b22525;
+      letter-spacing: 0.3rem;
+    }
+
+    header h1 span:nth-child(2) {
+      font-family: "Irish Grover", sans-serif;
+      color: rebeccapurple;
+    }
+
+    header h1 span:nth-child(3) {
+      color: rebeccapurple;
+      font-weight: 600;
+    }
+
+    .modal {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+    }
+
+    .modal .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+
+    .modal .modal-content {
+      background-color: #fefefe;
+      color: rgb(58, 29, 85);
+      border-radius: 5px;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 95%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .settings {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .settings #gap-input,
+    .settings #customize {
+      grid-column: span 2;
+    }
+
+    .settings .input-wrapper {
+      position: relative;
+      display: flex;
+    }
+
+    .settings input[type="number"] {
+      width: 100%;
+      display: block;
+      position: relative;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .settings input[type="number"]:focus {
+      border: 1px solid rebeccapurple;
+    }
+
+    .settings .input-wrapper::after {
+      content: attr(data-label);
+      position: absolute;
+      left: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: #fefefe;
+      padding: 0 0.25rem;
+      color: #666;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    .settings .input-wrapper:focus-within::after,
+    .settings .input-wrapper:has(input:not(:placeholder-shown))::after {
+      top: 0;
+      transform: translateY(-50%);
+      font-size: 0.75rem;
+      color: rebeccapurple;
+    }
+
+    .settings .gap-input-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      grid-column: span 2;
+    }
+
+    .settings .gap-input-wrapper label {
+      color: #2c0d43;
+      font-weight: 600;
+    }
+
+    .settings input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 10px;
+      background: #ddd;
+      outline: none;
+      opacity: 0.9;
+      -webkit-transition: opacity 0.2s;
+      transition: opacity 0.2s;
+      border-radius: 5px;
+      margin: 1rem 0;
+    }
+
+    .settings input[type="range"]:hover {
+      opacity: 1;
+    }
+
+    .settings input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: rebeccapurple;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+
+    .settings input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: rebeccapurple;
+      cursor: pointer;
+      border-radius: 50%;
+      border: none;
+    }
+
+    .settings input[type="file"] {
+      color: #444;
+      padding: 0.25rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-family: "Inter", sans-serif;
+    }
+
+    .settings .image-upload {
+      grid-column: span 2;
+      border: 2px dashed #ccc;
+      border-radius: 4px;
+      background-color: #fafafa;
+      transition: background-color 0.2s, border-color 0.2s;
+      cursor: pointer;
+    }
+
+    .settings .image-upload:hover {
+      background-color: lavenderblush;
+      border-color: rebeccapurple;
+    }
+
+    .settings .image-upload label {
+      color: rebeccapurple;
+      padding: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .settings button {
+      margin-top: 1rem;
+      grid-column: 2 / span 1;
+      padding: 0.75rem;
+      background-color: rebeccapurple;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    .settings button:hover {
+      background-color: #5a1a8a;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1><span>4</span><span>Z</span><span>Slide</span></h1>
+    <div style="cursor: pointer" class="cog" onclick="openModal()">
+      <svg width="30" viewBox="0 0 65 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M7.90804 32C7.90804 38.5085 10.4935 44.7504 15.0957 49.3526C19.6979 53.9547 25.9398 56.5402 32.4483 56.5402C38.9567 56.5402 45.1986 53.9547 49.8008 49.3526C54.403 44.7504 56.9885 38.5085 56.9885 32M7.90804 32C7.90804 25.4915 10.4935 19.2496 15.0957 14.6474C19.6979 10.0453 25.9398 7.45978 32.4483 7.45978C38.9567 7.45978 45.1986 10.0453 49.8008 14.6474C54.403 19.2496 56.9885 25.4915 56.9885 32M7.90804 32H3M56.9885 32H61.8965M56.9885 32H32.4483L17.7241 6.49453M4.77671 42.068L9.39027 40.3895M55.5095 23.604L60.1231 21.9254M9.89089 50.9287L13.6537 47.7744M51.2493 16.2255L55.0089 13.0713M17.7274 57.5055L20.1814 53.2518L32.4548 32M44.7216 10.7482L47.1757 6.49453M27.3374 61L28.1881 56.1672M36.7117 7.83279L37.5624 3M37.5624 61L36.7117 56.1672M28.1881 7.83279L27.3374 3M47.1724 57.5022L44.7184 53.2518M55.0056 50.9287L51.2461 47.7744M13.6537 16.2223L9.89089 13.068M60.1231 42.0713L55.5095 40.3927M9.39355 23.6072L4.77998 21.9254"
+          stroke="#8B2CF2" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
     </div>
-    <script src="./logic.js"></script>
-    <script>
-      let emptyTilePosition, puzzleGrid;
+  </header>
 
-      function createGridDOM() {
-        const rows = parseInt(document.getElementById("rows").value);
-        const cols = parseInt(document.getElementById("cols").value);
-        const gridElement = document.getElementById("gridOutput");
+  <div class="modal">
+    <div class="overlay" onclick="this.parentElement.style.display='none'"></div>
+    <div class="modal-content">
+      <h2>Settings</h2>
+      <div class="settings">
+        <div class="input-wrapper" data-label="Rows">
+          <input type="number" id="rows" min="1" value="2" placeholder="" />
+        </div>
+        <div class="input-wrapper" data-label="Columns">
+          <input type="number" id="cols" min="1" value="5" placeholder="" />
+        </div>
+        <div class="gap-input-wrapper">
+          <label for="gap-input">Gap</label>
+          <input type="range" name="gap" id="gap-input" min="0" max="20" value="8" />
+        </div>
+        <div class="image-upload" id="customize">
+          <label for="file">
+            Use Custom Image
+          </label>
+          <input id="file" style="display: none" type="file" accept="image/*" />
+        </div>
+        <button onclick="applyConfiguration()">Customize</button>
+      </div>
+    </div>
+  </div>
 
-        puzzleGrid = createGrid(rows, cols);
-        const shuffleDegree = Math.floor(Math.random() * 9000) + 1000;
-        emptyTilePosition = shuffleGrid(puzzleGrid, shuffleDegree);
 
-        gridElement.style.gridTemplateColumns = `repeat(${cols}, 50px)`;
-        gridElement.innerHTML = "";
+  <div onclick="prev()" class="prev">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </div>
 
-        for (let i = 0; i < rows * cols; i++) {
-          const cell = document.createElement("div");
-          cell.addEventListener("click", handleCellClick);
-          cell.style.userSelect = "none";
 
-          let puzzleGridFlattened = puzzleGrid.flat();
-          console.log(puzzleGridFlattened);
-          cell.className = "gridElement-cell";
-          cell.textContent = puzzleGridFlattened[i] || 1;
-          if (!puzzleGridFlattened[i] && puzzleGridFlattened.length !== 1) {
-            cell.style.backgroundColor = "transparent";
-            cell.style.border = "none";
-            cell.textContent = "";
-          }
-          gridElement.appendChild(cell);
-        }
+  <div id="main-wrapper"></div>
+
+  <div onclick="next()" class="next">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </div>
+
+  <button class="apply" onclick="apply(event)">Apply</button>
+
+  <script src="./logic.js"></script>
+  <script src="./utils.js"></script>
+  <script src="./drag.js"></script>
+  <script>
+    let emptyTilePositions = [],
+      puzzleGrids = [],
+      solvedGrids = [],
+      currentGridIndex = 0;
+    let rows, cols;
+    const imageList = ["./pika.avif", "./z.webp", "./phin.webp", "./v.webp"];
+    let numberOfGrids = 0;
+
+    function createNewGrid(index) {
+      rows = parseInt(document.getElementById("rows").value);
+      cols = parseInt(document.getElementById("cols").value);
+      solvedGrids[index] = createGrid(rows, cols);
+      puzzleGrids[index] = solvedGrids[index].map(row => row.slice());
+      const shuffleDegree = Math.floor(Math.random() * 9000) + 1000;
+      emptyTilePositions[index] = shuffleGrid(puzzleGrids[index], shuffleDegree);
+    }
+
+
+    const mainWrapper = document.getElementById("main-wrapper");
+    swipe(mainWrapper, next, prev);
+
+    function createGridDOM(index, custom = false) {
+
+      let puzzleGrid, solvedGrid, puzzleGridFlattened;
+
+      if (puzzleGrids.length != 0) {
+        puzzleGrid = puzzleGrids[currentGridIndex];
+        solvedGrid = solvedGrids[currentGridIndex];
+        puzzleGridFlattened = custom && index ? solvedGrid.flat() : puzzleGrid.flat();
       }
-      // Create initial gridElement
-      createGridDOM();
-      function handleCellClick(e) {
-        e.preventDefault();
-        const id = e.target.textContent;
-        const location = findValueIndices(puzzleGrid, id);
 
-        // Check if clicked cell is adjacent (non-diagonal) to empty cell
-        if (
-          (Math.abs(location[0] - emptyTilePosition[0]) === 1 &&
-            location[1] === emptyTilePosition[1]) ||
-          (Math.abs(location[1] - emptyTilePosition[1]) === 1 &&
-            location[0] === emptyTilePosition[0])
-        ) {
-          let cells = document.querySelectorAll(".gridElement-cell");
-          emptyEl = findElementByContent(
-            cells,
-            puzzleGrid[emptyTilePosition[0]][emptyTilePosition[1]]
-          );
-          swapCells(e.target, emptyEl);
-          slide(puzzleGrid, location, emptyTilePosition);
-          emptyTilePosition = location;
-        }
-      }
-      function swapCells(cell1, cell2) {
-        const rect1 = cell1.getBoundingClientRect();
-        const rect2 = cell2.getBoundingClientRect();
 
-        const deltaX = rect2.left - rect1.left;
-        const deltaY = rect2.top - rect1.top;
+      if (index >= numberOfGrids) {
+        const newContainer = document.createElement("div");
+        newContainer.className = "gridElement-container";
+        mainWrapper.appendChild(newContainer);
+        const newGridElement = document.createElement("div");
+        newGridElement.className = "gridElement";
 
-        // Set initial positions
-        cell1.style.transition = "none";
-        cell2.style.transition = "none";
-        cell1.style.transform = "none";
-        cell2.style.transform = "none";
 
-        // Trigger reflow
-        cell1.offsetHeight;
-        cell2.offsetHeight;
+        newContainer.appendChild(newGridElement);
 
-        // Add transition and move
-        cell1.style.transition = "transform 0.3s ease-in-out";
-        cell2.style.transition = "transform 0.3s ease-in-out";
-        cell1.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-        cell2.style.transform = `translate(${-deltaX}px, ${-deltaY}px)`;
+        createNewGrid(numberOfGrids);
 
-        // After animation, swap DOM positions
-        setTimeout(() => {
-          cell1.style.transition = "none";
-          cell2.style.transition = "none";
-          cell1.style.transform = "none";
-          cell2.style.transform = "none";
+        puzzleGrid = puzzleGrids[numberOfGrids];
+        solvedGrid = solvedGrids[numberOfGrids];
 
-          const temp = cell1.nextSibling;
-          cell2.parentNode.insertBefore(cell1, cell2.nextSibling);
-          cell1.parentNode.insertBefore(cell2, temp);
-        }, 300);
-      }
-      function findValueIndices(array2D, searchValue) {
-        for (let i = 0; i < array2D.length; i++) {
-          for (let j = 0; j < array2D[i].length; j++) {
-            if (array2D[i][j] == searchValue) {
-              return [i, j];
+        puzzleGridFlattened = custom && index ? solvedGrid.flat() : puzzleGrid.flat();
+        numberOfGrids++;
+
+        const imageElement = document.createElement("img");
+
+        if (index) {
+          imageElement.src = imageList[index - 1];
+          imageElement.draggable = true;
+
+
+          newGridElement.appendChild(imageElement);
+
+          imageElement.addEventListener('load', () => {
+            setImages(gridElement, index, imageElement);
+            if (currentGridIndex === index) {
+              gridElement.parentElement.style.display = "flex";
+            } else {
+              gridElement.parentElement.style.display = "none";
             }
-          }
+          });
+
+
+          makeDraggable(imageElement, () => setImages(newGridElement, index, imageElement));
+
         }
-        return null;
       }
-      function findChildByContent(parentElement, searchContent) {
-        const children = parentElement.children;
-        for (let child of children) {
-          if (child.textContent == searchContent) {
-            return child;
-          }
+
+      const gridElement = document.querySelectorAll(".gridElement")[index];
+
+      gridElement.style.gap = `${document.getElementById("gap-input").value / 2}px`;
+      gridElement.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 50px))`;
+
+      while (gridElement.children.length > (index ? 1 : 0)) {
+        gridElement.removeChild(gridElement.lastElementChild);
+      }
+
+      for (let i = 0; i < rows * cols; i++) {
+
+        const cell = document.createElement("div");
+
+        if (!custom || !index) {
+          cell.addEventListener("click", handleCellClick);
+          cell.addEventListener("touchstart", handleCellClick);
+          cell.addEventListener("touchend", handleCellClick);
         }
-        return null;
-      }
-      function findElementByContent(nodeList, searchValue) {
-        for (let node of nodeList) {
-          if (node.textContent == searchValue) {
-            return node;
-          }
+
+        cell.style.userSelect = "none";
+
+
+        cell.style.backgroundColor =
+          Math.random() < 0.5 ? "#D92C2C" : "#B22525";
+
+
+        cell.textContent = puzzleGridFlattened[i] || 1;
+
+        if (index)
+          cell.style.color = "transparent";
+
+        if (!puzzleGridFlattened[i] && puzzleGridFlattened.length !== 1) {
+          cell.style.backgroundColor = "transparent";
+          cell.style.border = "none";
+          cell.textContent = "";
         }
-        return null;
+
+        cell.className = "gridElement-cell";
+
+        gridElement.appendChild(cell);
       }
-    </script>
-  </body>
+
+      const imageElement = gridElement.querySelector("img");
+      if (index) {
+
+        if (gridElement.offsetWidth / imageElement.width < gridElement.offsetHeight / imageElement.height) {
+          imageElement.style.height = "100%";
+          imageElement.style.width = "auto";
+        } else {
+          imageElement.style.width = "100%";
+          imageElement.style.height = "auto";
+        }
+
+        if (!custom) {
+          imageElement.style.visibility = "hidden";
+          imageElement.style.zIndex = "-1";
+        }
+        else {
+          imageElement.style.visibility = "visible";
+          imageElement.style.zIndex = "2";
+        }
+
+        setImages(gridElement, index, imageElement);
+      }
+
+      if (custom && index)
+        setShouldSwipe(false);
+      else
+        setShouldSwipe(true);
+
+    }
+
+    for (let i = 0; i <= imageList.length; i++) {
+      createGridDOM(i);
+    }
+
+    function prev() {
+      if (currentGridIndex > 0) {
+        currentGridIndex--;
+        document.querySelectorAll(".gridElement")[currentGridIndex + 1].parentElement.style.display = "none";
+      } else if (currentGridIndex == 0) {
+        currentGridIndex = numberOfGrids - 1;
+        document.querySelectorAll(".gridElement")[0].parentElement.style.display = "none";
+      }
+      document.querySelectorAll(".gridElement")[currentGridIndex].parentElement.style.display = "flex";
+    }
+
+    function next() {
+      if (currentGridIndex < numberOfGrids - 1) {
+        currentGridIndex++;
+        document.querySelectorAll(".gridElement")[currentGridIndex - 1].parentElement.style.display = "none";
+      } else if (currentGridIndex == numberOfGrids - 1) {
+        currentGridIndex = 0;
+        document.querySelectorAll(".gridElement")[numberOfGrids - 1].parentElement.style.display = "none";
+      }
+      document.querySelectorAll(".gridElement")[currentGridIndex].parentElement.style.display = "flex";
+    }
+
+    function apply(e) {
+      createGridDOM(currentGridIndex);
+      e.target.style.display = "none";
+
+    }
+
+    function setImages(gridElement, index, imageElement) {
+      const cellsList = gridElement.querySelectorAll(".gridElement-cell");
+      for (const cell of cellsList) {
+        const positionCellIndex = cell.textContent !== "" ? parseInt(cell.textContent) - 1 : cellsList.length - 1;
+
+        const positionCell = cellsList[positionCellIndex];
+
+        cell.style.background = `url(${imageElement.src})`;
+        cell.style.backgroundSize = `${imageElement.width}px ${imageElement.height}px`;
+        cell.style.backgroundRepeat = "no-repeat";
+        const deltaX = positionCell.getBoundingClientRect().left - imageElement.getBoundingClientRect().left;
+        const deltaY = positionCell.getBoundingClientRect().top - imageElement.getBoundingClientRect().top;
+        cell.style.backgroundPosition = `${-deltaX}px ${-deltaY}px`;
+
+        if (positionCellIndex === (cellsList.length - 1)) {
+          cell.style.background = "transparent";
+          cell.style.border = "none";
+        }
+      }
+    }
+
+    touchLocation = [];
+
+    function handleCellClick(e) {
+
+      if (e.type == "touchstart") {
+        touchLocation = [e.touches[0].clientX, e.touches[0].clientY];
+        return;
+      }
+
+      if (e.type == "touchend") {
+        console.log(e);
+        const touch = [e.changedTouches[0].clientX, e.changedTouches[0].clientY];
+        const diff = Math.abs(touchLocation[0] - touch[0]) + Math.abs(touchLocation[1] - touch[1]);
+        touchLocation = [];
+        if (diff > 50)
+          return;
+      }
+
+      let puzzleGrid = puzzleGrids[currentGridIndex];
+
+      e.preventDefault();
+      const id = e.target.textContent;
+      const location = findValueIndices(puzzleGrid, id);
+      let emptyTilePosition = emptyTilePositions[currentGridIndex];
+
+      // Check if clicked cell is adjacent (non-diagonal) to empty cell
+      if (
+        (Math.abs(location[0] - emptyTilePosition[0]) === 1 &&
+          location[1] === emptyTilePosition[1]) ||
+        (Math.abs(location[1] - emptyTilePosition[1]) === 1 &&
+          location[0] === emptyTilePosition[0])
+      ) {
+        let currentGrid =
+          document.querySelectorAll(".gridElement")[currentGridIndex];
+        let cells = currentGrid.querySelectorAll(".gridElement-cell");
+
+        emptyEl = findElementByContent(
+          cells,
+          puzzleGrid[emptyTilePosition[0]][emptyTilePosition[1]]
+        );
+        swapCells(e.target, emptyEl);
+        slide(puzzleGrid, location, emptyTilePosition);
+        emptyTilePositions[currentGridIndex] = location;
+      }
+    }
+
+    function openModal(e) {
+      const modal = document.querySelector(".modal");
+      modal.style.display = "flex";
+    }
+
+    const gapInput = document.getElementById("gap-input");
+    gapInput.addEventListener("input", () => updateGapSlider(gapInput));
+    updateGapSlider(gapInput);
+
+    const fileInput = document.getElementById("file");
+    let settingImage = false;
+    fileInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.querySelector(".image-upload label").textContent = file.name;
+
+          imageList.push(e.target.result);
+          createGridDOM(numberOfGrids);
+          settingImage = true;
+
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function applyConfiguration(e) {
+      document.querySelectorAll(".gridElement")[currentGridIndex].parentElement.style.display = "none";
+
+      if (settingImage) {
+        currentGridIndex = numberOfGrids - 1;
+      }
+      if (currentGridIndex !== 0) {
+        document.querySelector(".apply").style.display = "block";
+      }
+
+      document.querySelectorAll(".gridElement")[currentGridIndex].parentElement.style.display = "flex";
+      const modal = document.querySelector(".modal");
+      modal.style.display = "none";
+      createNewGrid(currentGridIndex);
+      createGridDOM(currentGridIndex, true);
+
+      settingImage = false;
+    }
+  </script>
+</body>
+
 </html>
