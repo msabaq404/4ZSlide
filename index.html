@@ -5,6 +5,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>4ZSlide Puzzle</title>
+  <meta name="description" content="An interactive and customizable sliding puzzle game, 4ZSlide. Challenge yourself with different grid sizes, gaps, and even your own images." />
+  <meta name="keywords" content="puzzle, sliding puzzle, 4ZSlide, game, interactive game, brain teaser, logic puzzle, custom puzzle" />
+  <meta name="author" content="MSabaq" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="4ZSlide Puzzle Game" />
+  <meta property="og:description" content="An interactive and customizable sliding puzzle game. Create your own puzzles and challenge your friends!" />
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:title" content="4ZSlide Puzzle Game" />
+  <meta property="twitter:description" content="An interactive and customizable sliding puzzle game. Create your own puzzles and challenge your friends!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -236,6 +249,43 @@
     .settings button:hover {
       background-color: #5a1a8a;
     }
+
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left:0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-align: center;
+      padding: 0 1rem;
+      margin-top: 1rem;
+      color: rebeccapurple;
+      font-size: 1rem;
+      font-weight: 500;
+      height: 5rem;
+    }
+
+    footer a{
+      height: 50px;
+      margin-left: 0.8rem;
+    }
+
+
+    footer a img {
+      height: 50px !important;
+      width: auto !important;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    footer a:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
   </style>
 </head>
 
@@ -296,6 +346,16 @@
   </div>
 
   <button class="apply" onclick="apply(event)">Apply</button>
+
+
+
+  
+  <footer>
+    <p>Crafted with 💜 by <strong>MSabaq</strong></p>
+    <a href="https://www.buymeacoffee.com/msabaq" target="_blank" rel="noopener noreferrer">
+      <img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy Me A Coffee">
+    </a>
+  </footer>
 
   <script src="./logic.js"></script>
   <script src="./utils.js"></script>
