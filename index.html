@@ -251,6 +251,63 @@
     }
 
 
+    .modal.victory-modal .modal-content{
+      padding: 0;
+      background-color: #7b33b1;
+      border: none;
+
+    }
+
+    .modal.victory-modal h2.you-win{
+      display: block;
+      background-color: #7f50a3;
+      color: lavender;
+      margin-top: 1rem;
+      padding: .5rem 0;
+      font-weight: bold;
+      border-radius: 0 0 8px 8px;
+      border-bottom: .2rem solid #896aa1;
+    }
+
+    .modal.victory-modal h3.moves{
+      margin: .8rem 0;
+      color: lavender;
+    }
+
+    .modal.victory-modal h4.moves-count{
+      color: lavender;
+      margin-bottom: 1rem;
+    }
+
+    .modal.victory-modal .btn-box{
+      padding: 0 1rem;
+      margin-bottom: .5rem;
+      display: flex;
+      gap: .5rem;
+    }
+
+    .modal.victory-modal .btn-box button{
+      padding: .5rem 1rem;
+      background-color: #896aa1;
+      border: none;
+      font-weight: bold ;
+      font-size: 1rem;
+      width: 100%;
+      border-radius: .2rem;
+      cursor: pointer;
+      color: lavender;
+    }
+
+    .modal.victory-modal .btn-box button:nth-child(2){
+      background-color: #b14c4c;
+    }
+
+    .modal.victory-modal .btn-box button:hover{
+      filter: brightness(1.1);
+    }
+
+
+
     footer {
       position: fixed;
       bottom: 0;
@@ -328,6 +385,23 @@
     </div>
   </div>
 
+  <div class="modal victory-modal">
+    <div class="overlay" onclick="this.parentElement.style.display='none'"></div>
+    <div class="modal-content">
+      <h2 class="you-win">YOU WIN!</h2>
+      <h3 class="moves">Moves:</h3>
+      <h4 class="moves-count">53</h4>
+      <div class="btn-box">
+        <button 
+          onclick="this.parentElement.parentElement.parentElement.style.display='none'"
+          >Cancel</button>
+        <button 
+          onclick="startNewRound()"
+        >Next Round</button>
+      </div>
+    </div>  
+  </div>
+
 
   <div onclick="prev()" class="prev">
     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -365,6 +439,7 @@
     let emptyTilePositions = [],
       puzzleGrids = [],
       solvedGrids = [],
+      currentMoves = [],
       currentGridIndex = 0;
     let rows, cols;
     const imageList = ["./pika.avif", "./z.webp", "./phin.webp", "./v.webp"];
@@ -563,7 +638,7 @@
 
     touchLocation = [];
 
-    function handleCellClick(e) {
+    async function handleCellClick(e) {
 
       if (e.type == "touchstart") {
         touchLocation = [e.touches[0].clientX, e.touches[0].clientY];
@@ -601,15 +676,37 @@
           cells,
           puzzleGrid[emptyTilePosition[0]][emptyTilePosition[1]]
         );
-        swapCells(e.target, emptyEl);
         slide(puzzleGrid, location, emptyTilePosition);
+        await swapCells(e.target, emptyEl);
+        const puzzleGridFlattened = puzzleGrid.flat().map(i => i === 0 ? Infinity : i);
+        currentMoves[currentGridIndex] = (currentMoves[currentGridIndex] || 0) + 1;
+        if (puzzleGridFlattened.every((val, i) => i == 0 || val >= puzzleGridFlattened[i-1])){
+          setTimeout(() => {
+            showVictory();
+          }, 300);
+        }
         emptyTilePositions[currentGridIndex] = location;
       }
     }
 
     function openModal(e) {
-      const modal = document.querySelector(".modal");
+      const modal = document.querySelector(".modal:has(.settings)");
       modal.style.display = "flex";
+    }
+
+    function showVictory(){
+      const modal = document.querySelector(".modal.victory-modal");
+      const movesCount = modal.querySelector(".moves-count");
+      movesCount.textContent = currentMoves[currentGridIndex];
+      modal.style.display = "flex";
+    }
+
+    function startNewRound() {
+      const modal = document.querySelector(".modal.victory-modal");
+      modal.style.display = "none";   
+      currentMoves[currentGridIndex] = 0;
+      createNewGrid(currentGridIndex);
+      createGridDOM(currentGridIndex);
     }
 
     const gapInput = document.getElementById("gap-input");

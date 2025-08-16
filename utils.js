@@ -1,4 +1,4 @@
-function swapCells(cell1, cell2) {
+async function swapCells(cell1, cell2) {
   const rect1 = cell1.getBoundingClientRect();
   const rect2 = cell2.getBoundingClientRect();
 
@@ -22,16 +22,21 @@ function swapCells(cell1, cell2) {
   cell2.style.transform = `translate(${-deltaX}px, ${-deltaY}px)`;
 
   // After animation, swap DOM positions
-  setTimeout(() => {
-    cell1.style.transition = "none";
-    cell2.style.transition = "none";
-    cell1.style.transform = "none";
-    cell2.style.transform = "none";
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      cell1.style.transition = "none";
+      cell2.style.transition = "none";
+      cell1.style.transform = "none";
+      cell2.style.transform = "none";
 
-    const temp = cell1.nextSibling;
-    cell2.parentNode.insertBefore(cell1, cell2.nextSibling);
-    cell1.parentNode.insertBefore(cell2, temp);
-  }, 300);
+      const temp = cell1.nextSibling;
+      cell2.parentNode.insertBefore(cell1, cell2.nextSibling);
+      cell1.parentNode.insertBefore(cell2, temp);
+
+      resolve();
+    }, 300);
+  });
+
 }
 
 function findValueIndices(array2D, searchValue) {
